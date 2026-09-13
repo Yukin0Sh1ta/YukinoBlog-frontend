@@ -1,0 +1,266 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===== 主题变量（日/夜切换）===== */
+:root {
+  /* 日间：白玻璃 + 黑字 */
+  --card-bg: rgba(255, 255, 255, 0.6);
+  --card-border: rgba(0, 0, 0, 0.1);
+  --text-main: #1a202c;
+  --text-sub: #4a5568;
+  --text-muted: #718096;
+}
+
+.dark {
+  /* 夜间：深玻璃 + 白字 */
+  --card-bg: rgba(15, 20, 30, 0.65);
+  --card-border: rgba(255, 255, 255, 0.15);
+  --text-main: #ffffff;
+  --text-sub: #e0e0e0;
+  --text-muted: #9ca3af;
+}
+
+/* 主题切换过渡：所有颜色相关属性平滑变化 */
+body,
+body * {
+  transition-property: background-color, border-color, color;
+  transition-duration: 400ms;
+  transition-timing-function: ease;
+}
+
+/* 注册 ChillReunion_Round 字体 */
+@font-face {
+  font-family: "ChillReunionRound";
+  src: url("../assets/fonts/ChillReunion_Round.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 全局默认字体 */
+body {
+  font-family: "ChillReunionRound", "Microsoft YaHei", sans-serif;
+}
+
+/* 技术图标：用 currentColor（继承父元素品牌色） */
+.tech-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* ===== 流星背景 ===== */
+.meteor {
+  position: absolute;
+  top: -120px;                              /* 从屏幕上方外开始 */
+  width: 2px;
+  height: var(--meteor-height, 80px);       /* 尾巴长度 */
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.8)   /* 尾部渐亮：白→透明（坠落方向朝下） */
+  );
+  transform: rotate(35deg);                 /* 倾斜（右上→左下坠落） */
+  animation-name: meteor-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  opacity: 0;
+}
+
+@keyframes meteor-fall {
+  0% {
+    transform: translate(0, 0) rotate(35deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;                             /* 快速出现 */
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-40vw, 110vh) rotate(35deg);   /* 左下方向坠落出屏 */
+    opacity: 0;                             /* 消失 */
+  }
+}
+
+/* ===== 樱花点击特效 ===== */
+.sakura-petal {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation-name: sakura-burst;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;   /* 结束停在最终状态（淡出） */
+}
+
+@keyframes sakura-burst {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    /* 飞散：水平随机（--dx）+ 下落 120px + 旋转 */
+    transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + 120px)) rotate(var(--rotate, 360deg)) scale(1);
+    opacity: 0;
+  }
+}
+
+/* ===== 萤火虫 ===== */
+.firefly {
+  position: absolute;
+  border-radius: 9999px;
+  /* 光点本体：黄绿核心 + 光晕 */
+  background: radial-gradient(circle, #fde68a 0%, #a3e635 40%, transparent 70%);
+  box-shadow: 0 0 6px 2px rgba(163, 230, 53, 0.4);
+  pointer-events: none;
+  /* 三个动画叠加：水平游走 + 垂直游走 + 呼吸闪烁 */
+  animation-name: firefly-x, firefly-y, firefly-glow;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  /* 周期从 CSS 变量传入（每只不同，轨迹自然不重合） */
+  animation-duration: var(--dur-x, 20s), var(--dur-y, 15s), var(--dur-glow, 3s);
+  animation-delay: var(--delay, 0s), var(--delay, 0s), var(--delay, 0s);
+}
+
+/* 水平缓慢游走（来回） */
+@keyframes firefly-x {
+  0%, 100% { margin-left: 0; }
+  50%      { margin-left: var(--dx, 10vw); }
+}
+
+/* 垂直缓慢游走（来回，周期不同 → 和水平叠加成不规则轨迹） */
+@keyframes firefly-y {
+  0%, 100% { margin-top: 0; }
+  50%      { margin-top: var(--dy, 5vh); }
+}
+
+/* 呼吸闪烁（明→暗→明） */
+@keyframes firefly-glow {
+  0%, 100% { opacity: 0.9; }
+  50%      { opacity: 0.15; }
+}
+
+/* ===== 技术栈跑马灯 ===== */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+/* 无缝循环跑马灯容器（内容重复两份） */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  flex-shrink: 0;           /* 防止被压缩 */
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.marquee-left {
+  animation: marquee-left 20s linear infinite;
+}
+.marquee-right {
+  animation: marquee-right 20s linear infinite;
+}
+
+/* 边界淡出（左右渐变透明） */
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 15%,
+    black 85%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 15%,
+    black 85%,
+    transparent
+  );
+}
+
+/* ===== 樱花进度条 ===== */
+.sakura-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  outline: none;
+}
+
+/* 滑块：樱花 emoji + 粉色圆底 */
+.sakura-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #fff 30%, #f9a8d4 70%, #ec4899);
+  border: 2px solid #fbcfe8;
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.6);
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌸%3C/text%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  border: none;
+}
+
+/* Firefox 滑块 */
+.sakura-range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌸%3C/text%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  border: none;
+  cursor: pointer;
+}
+
+/* ===== 竖向樱花音量条 ===== */
+.sakura-range-vertical {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 6px;
+  height: 120px;
+  border-radius: 9999px;
+  outline: none;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  background: rgba(255, 255, 255, 0.15);   /* 轨道固定半透明白，宽度稳定 */
+}
+
+.sakura-range-vertical::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌸%3C/text%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  border: none;
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.6);
+  cursor: pointer;
+}
+
+.sakura-range-vertical::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌸%3C/text%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
