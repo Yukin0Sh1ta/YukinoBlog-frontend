@@ -25,6 +25,17 @@ function App() {
       <div className="relative z-10 text-(--text-main)">
         <Head />
         <Outlet />
+        {/* 页脚：备案号（工信部要求，链接到备案系统） */}
+        <footer className="relative py-5 text-center">
+          <a
+            href="https://beian.miit.gov.cn/"
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs text-(--text-muted) hover:text-(--text-main) transition-colors no-underline"
+          >
+            粤ICP备2026145412号-1
+          </a>
+        </footer>
       </div>
     </div>
   )
